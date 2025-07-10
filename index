@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>the black one</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: black;
+      color: white;
+      font-family: Arial, sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .hover-area {
+      padding: 4vw;
+    }
+
+    .text-block {
+      text-align: left;
+      z-index: 3;
+      position: relative;
+      display: flex;
+      align-items: baseline;
+      gap: 1vw;
+    }
+
+    .line-text {
+      font-size: 14vw;
+      font-weight: bold;
+      line-height: 0.9;
+      overflow: hidden;
+      position: relative;
+      display: inline-block;
+      letter-spacing: -0.02em;
+    }
+
+    .line-text span {
+      display: inline-block;
+      transform: translateY(100%);
+      animation: fadeUpFromLine 1s ease-out forwards;
+      animation-delay: 0.1s;
+      position: relative;
+      z-index: 2;
+      opacity: 0;
+    }
+
+    .line-text:nth-child(1) span,
+    .line-text:nth-child(2) span,
+    .line-text:nth-child(3) span {
+      animation-delay: 0.1s;
+    }
+
+    @keyframes fadeUpFromLine {
+      0% {
+        transform: translateY(100%);
+        opacity: 0;
+      }
+      100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .character {
+      width: 40px;
+      height: 40px;
+      background: white;
+      border-radius: 50%;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 0 10px rgba(255,255,255,0.2);
+      transform: translateY(100%);
+      animation: fadeUpFromLine 1s ease-out forwards;
+      animation-delay: 0.2s;
+      opacity: 0;
+      flex-shrink: 0;
+      z-index: 2;
+    }
+
+    .eye {
+      width: 8px;
+      height: 8px;
+      background: black;
+      border-radius: 50%;
+      position: absolute;
+      transition: transform 0.1s;
+    }
+
+    .eye.left {
+      left: 10px;
+      top: 14px;
+    }
+
+    .eye.right {
+      right: 10px;
+      top: 14px;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 4vh 4vw;
+      }
+
+      .text-block {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 2vh;
+        padding: 0;
+      }
+
+      .line-text {
+        font-size: 24vw;
+        line-height: 0.95;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="hover-area">
+    <div class="text-block" id="hover-zone">
+      <div class="line-text"><span>the</span></div>
+      <div class="line-text"><span>black</span></div>
+      <div class="line-text"><span>one</span></div>
+
+      <div class="character">
+        <div class="eye left"></div>
+        <div class="eye right"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const eyes = document.querySelectorAll('.eye');
+    document.addEventListener('mousemove', (e) => {
+      eyes.forEach(eye => {
+        const rect = eye.getBoundingClientRect();
+        const eyeX = rect.left + rect.width / 2;
+        const eyeY = rect.top + rect.height / 2;
+        const angle = Math.atan2(e.pageY - eyeY, e.pageX - eyeX);
+        const offsetX = Math.cos(angle) * 4;
+        const offsetY = Math.sin(angle) * 4;
+        eye.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+      });
+    });
+  </script>
+</body>
+</html>
