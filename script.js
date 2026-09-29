@@ -31,20 +31,94 @@ const revealObserver = new IntersectionObserver((entries) => {
 }, { threshold: 0.12 });
 $$('.reveal').forEach(el => revealObserver.observe(el));
 
-// Eye tracking
+// Eye tracking -------------------------------------------------------------
+// Desktop: follows the pointer.
+// Touch devices: follows the finger while touching; when idle the eyes gently
+// wander so the character still feels alive even though phones have no cursor.
 const pupils = $$('.pupil');
-function moveEyes(x, y) {
+const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
+let lastEyeInput = 0;
+let idleEyeFrame = 0;
+
+function moveEyes(x, y, strength = 1) {
   pupils.forEach((pupil) => {
     const eye = pupil.parentElement;
     const rect = eye.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
     const angle = Math.atan2(y - cy, x - cx);
-    const distance = Math.min(rect.width * 0.19, 8);
-    pupil.style.transform = `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px)`;
+    const maxDistance = Math.min(rect.width * 0.22, 11) * strength;
+
+    pupil.style.transform = `translate(${Math.cos(angle) * maxDistance}px, ${Math.sin(angle) * maxDistance}px)`;
   });
 }
-window.addEventListener('pointermove', (e) => moveEyes(e.clientX, e.clientY));
+
+function handleEyePointer(e) {
+  lastEyeInput = performance.now();
+  moveEyes(e.clientX, e.clientY);
+}
+
+window.addEventListener('pointermove', handleEyePointer, { passive: true });
+window.addEventListener('pointerdown', handleEyePointer, { passive: true });
+window.addEventListener('touchmove', (e) => {
+  const touch = e.touches[0];
+  if (!touch) return;
+  lastEyeInput = performance.now();
+  moveEyes(touch.clientX, touch.clientY);
+}, { passive: true });
+
+function animateIdleEyes(now) {
+  if (coarsePointer && now - lastEyeInput > 900) {
+    // Slow figure-eight gaze on touch devices. The target is viewport-relative,
+    // so all characters look in roughly the same natural direction.
+    const x = innerWidth * (0.5 + Math.sin(now / 1700) * 0.22);
+    const y = innerHeight * (0.44 + Math.sin(now / 2300 + 1.2) * 0.13);
+    moveEyes(x, y, 0.72);
+  }
+  idleEyeFrame = requestAnimationFrame(animateIdleEyes);
+}
+idleEyeFrame = requestAnimationFrame(animateIdleEyes);
+
+// Timeline glow ------------------------------------------------------------
+// One light pulse slides along the vertical line and locks onto the hovered /
+// focused item. On touch, tapping an item activates it.
+const timeline = $('.timeline');
+if (timeline) {
+  const glow = document.createElement('span');
+  glow.className = 'timeline-glow';
+  glow.setAttribute('aria-hidden', 'true');
+  timeline.prepend(glow);
+
+  const items = $$('.timeline-item', timeline);
+
+  function activateTimelineItem(item) {
+    items.forEach(el => el.classList.toggle('is-active', el === item));
+    timeline.classList.add('is-active');
+
+    const itemRect = item.getBoundingClientRect();
+    const timelineRect = timeline.getBoundingClientRect();
+    const dotCenter = itemRect.top - timelineRect.top + 40;
+    const glowCenter = glow.offsetHeight / 2;
+    glow.style.transform = `translateY(${dotCenter - 22 - glowCenter}px)`;
+  }
+
+  function clearTimeline() {
+    items.forEach(el => el.classList.remove('is-active'));
+    timeline.classList.remove('is-active');
+  }
+
+  items.forEach((item) => {
+    item.tabIndex = 0;
+    item.addEventListener('mouseenter', () => activateTimelineItem(item));
+    item.addEventListener('focus', () => activateTimelineItem(item));
+    item.addEventListener('pointerdown', () => activateTimelineItem(item), { passive: true });
+    item.addEventListener('blur', clearTimeline);
+  });
+
+  timeline.addEventListener('mouseleave', clearTimeline);
+}
 
 // Custom cursor
 const dot = $('.cursor-dot');
@@ -61,7 +135,7 @@ function animateCursor() {
   requestAnimationFrame(animateCursor);
 }
 animateCursor();
-$$('a, button, .tilt').forEach(el => {
+$$('a, button, .tilt, .timeline-item').forEach(el => {
   el.addEventListener('mouseenter', () => ring.classList.add('is-hovering'));
   el.addEventListener('mouseleave', () => ring.classList.remove('is-hovering'));
 });
@@ -108,6 +182,7 @@ const ctx = canvas.getContext('2d');
 let particles = [];
 let dpr = Math.min(window.devicePixelRatio || 1, 2);
 function resizeCanvas() {
+  dpr = Math.min(window.devicePixelRatio || 1, 2);
   canvas.width = innerWidth * dpr;
   canvas.height = innerHeight * dpr;
   canvas.style.width = `${innerWidth}px`;
