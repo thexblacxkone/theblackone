@@ -1,161 +1,159 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="da">
 <head>
-  <meta charset="UTF-8">
-  <title>the black one</title>
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: black;
-      color: white;
-      font-family: Arial, sans-serif;
-      height: 100vh;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-    }
-
-    .hover-area {
-      padding: 4vw;
-    }
-
-    .text-block {
-      text-align: left;
-      z-index: 3;
-      position: relative;
-      display: flex;
-      align-items: baseline;
-      gap: 1vw;
-    }
-
-    .line-text {
-      font-size: 14vw;
-      font-weight: bold;
-      line-height: 0.9;
-      overflow: hidden;
-      position: relative;
-      display: inline-block;
-      letter-spacing: -0.02em;
-    }
-
-    .line-text span {
-      display: inline-block;
-      transform: translateY(100%);
-      animation: fadeUpFromLine 1s ease-out forwards;
-      animation-delay: 0.1s;
-      position: relative;
-      z-index: 2;
-      opacity: 0;
-    }
-
-    .line-text:nth-child(1) span,
-    .line-text:nth-child(2) span,
-    .line-text:nth-child(3) span {
-      animation-delay: 0.1s;
-    }
-
-    @keyframes fadeUpFromLine {
-      0% {
-        transform: translateY(100%);
-        opacity: 0;
-      }
-      100% {
-        transform: translateY(0);
-        opacity: 1;
-      }
-    }
-
-    .character {
-      width: 40px;
-      height: 40px;
-      background: white;
-      border-radius: 50%;
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      box-shadow: 0 0 10px rgba(255,255,255,0.2);
-      transform: translateY(100%);
-      animation: fadeUpFromLine 1s ease-out forwards;
-      animation-delay: 0.2s;
-      opacity: 0;
-      flex-shrink: 0;
-      z-index: 2;
-    }
-
-    .eye {
-      width: 8px;
-      height: 8px;
-      background: black;
-      border-radius: 50%;
-      position: absolute;
-      transition: transform 0.1s;
-    }
-
-    .eye.left {
-      left: 10px;
-      top: 14px;
-    }
-
-    .eye.right {
-      right: 10px;
-      top: 14px;
-    }
-
-    @media (max-width: 768px) {
-      body {
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 4vh 4vw;
-      }
-
-      .text-block {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        gap: 2vh;
-        padding: 0;
-      }
-
-      .line-text {
-        font-size: 24vw;
-        line-height: 0.95;
-      }
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#050505" />
+  <meta name="description" content="The Black One — Emma Langberg. Digital, service, tech og projekter." />
+  <title>the black one — Emma Langberg</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="hover-area">
-    <div class="text-block" id="hover-zone">
-      <div class="line-text"><span>the</span></div>
-      <div class="line-text"><span>black</span></div>
-      <div class="line-text"><span>one</span></div>
+  <canvas id="particles" aria-hidden="true"></canvas>
+  <div class="noise" aria-hidden="true"></div>
+  <div class="cursor-dot" aria-hidden="true"></div>
+  <div class="cursor-ring" aria-hidden="true"></div>
 
-      <div class="character">
-        <div class="eye left"></div>
-        <div class="eye right"></div>
-      </div>
+  <header class="site-header">
+    <a class="brand magnetic" href="#home" aria-label="Til forsiden">the black one</a>
+    <nav class="desktop-nav" aria-label="Primær navigation">
+      <a href="#home">home</a>
+      <a href="#about">about</a>
+      <a href="#experience">experience</a>
+      <a href="#contact">contact</a>
+    </nav>
+    <button class="menu-toggle magnetic" type="button" aria-label="Åbn menu" aria-expanded="false">
+      <span></span><span></span>
+    </button>
+  </header>
+
+  <div class="mobile-menu" aria-hidden="true">
+    <nav>
+      <a href="#home">Home</a>
+      <a href="#about">About</a>
+      <a href="#experience">Experience</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <div class="mobile-socials">
+      <a href="https://www.linkedin.com/in/emmalangberg/" target="_blank" rel="noreferrer">LinkedIn</a>
     </div>
   </div>
 
-  <script>
-    const eyes = document.querySelectorAll('.eye');
-    document.addEventListener('mousemove', (e) => {
-      eyes.forEach(eye => {
-        const rect = eye.getBoundingClientRect();
-        const eyeX = rect.left + rect.width / 2;
-        const eyeY = rect.top + rect.height / 2;
-        const angle = Math.atan2(e.pageY - eyeY, e.pageX - eyeX);
-        const offsetX = Math.cos(angle) * 4;
-        const offsetY = Math.sin(angle) * 4;
-        eye.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
-      });
-    });
-  </script>
+  <main>
+    <section class="hero section" id="home">
+      <div class="hero-copy reveal">
+        <p class="eyebrow">personal corner of the internet</p>
+        <h1 class="hero-title" aria-label="the black one">
+          <span>the</span>
+          <span>black</span>
+          <span>one</span>
+        </h1>
+        <p class="hero-tagline">Curious mind.<br />Practical solutions.<br />Digital impact.</p>
+      </div>
+
+      <div class="hero-character reveal" data-delay="120">
+        <div class="orb-wrap">
+          <div class="orb-glow"></div>
+          <div class="orb" id="orb">
+            <div class="eye left"><span class="pupil"></span></div>
+            <div class="eye right"><span class="pupil"></span></div>
+          </div>
+          <p class="scribble">↖ øjnene følger<br />musen </p>
+        </div>
+      </div>
+
+      <a class="scroll-cue" href="#about"><span class="mouse"></span>scroll for mere</a>
+      <a class="down-arrow magnetic" href="#about" aria-label="Scroll ned">↓</a>
+    </section>
+
+    <section class="about section" id="about">
+      <div class="section-number">01.</div>
+      <div class="about-copy reveal">
+        <p class="eyebrow">hey, I'm</p>
+        <h2>Emma<br />Langberg</h2>
+        <p class="lead">Jeg arbejder i krydsfeltet mellem mennesker, digitale løsninger og teknik — og trives bedst, når noget komplekst skal gøres forståeligt og få ting til at ske.</p>
+        <a class="pill magnetic" href="#experience">Se min erfaring <span>↘</span></a>
+      </div>
+
+      <div class="about-visual reveal" data-delay="100">
+        <div class="photo-stack" aria-label="Plads til portrætbillede">
+          <div class="photo-card back-one"></div>
+          <div class="photo-card back-two"></div>
+          <div class="photo-card main-photo">
+            <div class="photo-placeholder">
+              <span>drop your photo here</span>
+              <small>assets/emma.jpg</small>
+            </div>
+          </div>
+          <span class="photo-note">↖ that's me ✨</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="skills section" id="skills">
+      <div class="section-number">02.</div>
+      <div class="section-heading reveal">
+        <p class="eyebrow">what I do</p>
+        <h2>kompetencer</h2>
+      </div>
+      <div class="skills-grid">
+        <article class="skill-card tilt reveal"><span class="skill-icon">U</span><h3>Umbraco</h3><p>CMS, Forms og redaktøroplevelse.</p></article>
+        <article class="skill-card tilt reveal"><span class="skill-icon">△</span><h3>Azure</h3><p>Drift, hosting og cloud-fejlsøgning.</p></article>
+        <article class="skill-card tilt reveal"><span class="skill-icon">&lt;/&gt;</span><h3>Frontend</h3><p>HTML, CSS, JavaScript og lidt TS.</p></article>
+        <article class="skill-card tilt reveal"><span class="skill-icon">◎</span><h3>Projektledelse</h3><p>Afklaring, plan, koordinering og release.</p></article>
+        <article class="skill-card tilt reveal"><span class="skill-icon">•••</span><h3>Kundesupport</h3><p>Fra “det virker ikke” til en konkret løsning.</p></article>
+        <article class="skill-card tilt reveal"><span class="skill-icon">▤</span><h3>Dokumentation</h3><p>Viden, der kan bruges af andre bagefter.</p></article>
+        <article class="skill-card tilt reveal"><span class="skill-icon">◇</span><h3>Sikkerhed</h3><p>Patches, adgang, headers og best practice.</p></article>
+        <article class="skill-card tilt reveal"><span class="skill-icon">✦</span><h3>Analyse</h3><p>Find årsagen, skab overblik, vælg næste skridt.</p></article>
+      </div>
+    </section>
+
+    <section class="experience section" id="experience">
+      <div class="section-number">04.</div>
+      <div class="section-heading reveal">
+        <p class="eyebrow">a very short version</p>
+        <h2>erfaring</h2>
+      </div>
+      <div class="timeline reveal">
+        <article class="timeline-item"><div class="time">2026 —</div><div><h3>Vertica</h3><p>Teknisk projektleder</p></div></article>
+        <article class="timeline-item"><div class="time">2023 — 2026</div><div><h3>Illumi A/S</h3><p>Service- og supportansvarlig</p></div></article>
+        <article class="timeline-item"><div class="time">2021 — 2023</div><div><h3>Aarhus Universitet</h3><p>Cand.it. Informationsvidenskab</p></div></article>
+        <article class="timeline-item"><div class="time">2018 — 2021</div><div><h3>Aarhus Universitet</h3><p>BSc i Informationsvidenskab</p></div></article>
+      </div>
+    </section>
+
+    <section class="contact section" id="contact">
+      <div class="section-number">05.</div>
+      <div class="contact-copy reveal">
+        <p class="eyebrow">say hi</p>
+        <h2>lad os tage<br />en snak ✨</h2>
+        <p>Har du et spørgsmål, en idé eller bare lyst til at sige hej? Du er altid velkommen til at skrive.</p>
+        <div class="contact-links">
+          <a class="contact-link magnetic" href="mailto:emma@theblackone.dk"><span>✉</span> emma@theblackone.dk <b>↗</b></a>
+          <a class="contact-link magnetic" href="https://www.linkedin.com/in/emmalangberg/" target="_blank" rel="noreferrer"><span>in</span> LinkedIn <b>↗</b></a>
+        </div>
+      </div>
+
+      <div class="contact-character reveal" data-delay="120" aria-hidden="true">
+        <div class="horizon"></div>
+        <div class="peek-orb">
+          <div class="eye left"><span class="pupil"></span></div>
+          <div class="eye right"><span class="pupil"></span></div>
+        </div>
+        <div class="rays"><span></span><span></span><span></span><span></span></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>© <span id="year"></span> the black one</span>
+    <span>built with plain HTML, CSS & JS</span>
+  </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>
