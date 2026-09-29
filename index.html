@@ -121,7 +121,7 @@
         <h2>erfaring</h2>
       </div>
       <div class="timeline reveal">
-        <article class="timeline-item"><div class="time">2026 —</div><div><h3>Vertica</h3><p>Teknisk projektleder</p></div></article>
+        <article class="timeline-item"><div class="time">2026 —</div><div><h3>Vertica</h3><p>Service · kundevendt projekt / leverance</p></div></article>
         <article class="timeline-item"><div class="time">2023 — 2026</div><div><h3>Illumi A/S</h3><p>Service- og supportansvarlig</p></div></article>
         <article class="timeline-item"><div class="time">2020 — 2022</div><div><h3>Aarhus Universitet</h3><p>Cand.it. Informationsvidenskab</p></div></article>
         <article class="timeline-item"><div class="time">2017 — 2020</div><div><h3>Aarhus Universitet</h3><p>BSc i Informationsvidenskab</p></div></article>
@@ -137,7 +137,8 @@
         <div class="contact-links">
           <a class="contact-link magnetic" href="mailto:emma@theblackone.dk"><span>✉</span> emma@theblackone.dk <b>↗</b></a>
           <a class="contact-link magnetic" href="https://www.linkedin.com/in/emmalangberg/" target="_blank" rel="noreferrer"><span>in</span> LinkedIn <b>↗</b></a>
-        </div>
+      </div>
+
       </div>
 
       <div class="contact-character reveal" data-delay="120" aria-hidden="true">
@@ -168,9 +169,19 @@
           <span class="terminal-light green"></span>
         </div>
         <span class="terminal-title" id="terminalTitle">terminal.exe</span>
-        <button class="terminal-close" type="button" data-terminal-close aria-label="Luk terminal">×</button>
+        <div class="terminal-actions">
+          <button class="terminal-dock" type="button" data-terminal-dock aria-pressed="false" aria-label="Fastgør terminal i venstre side" title="Dock terminal">◧</button>
+          <button class="terminal-close" type="button" data-terminal-close aria-label="Luk terminal">×</button>
+        </div>
       </header>
       <div class="terminal-body" id="terminalBody" aria-live="polite">
+        <div class="terminal-orb-monitor" aria-hidden="true">
+          <span class="terminal-orb-label">orb monitor</span>
+          <div class="terminal-orb">
+            <div class="eye left"><span class="pupil"></span></div>
+            <div class="eye right"><span class="pupil"></span></div>
+          </div>
+        </div>
         <div class="terminal-output" id="terminalOutput"></div>
         <form class="terminal-form" id="terminalForm" autocomplete="off">
           <span class="terminal-prompt" aria-hidden="true">&gt;</span>

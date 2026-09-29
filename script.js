@@ -233,6 +233,7 @@ const terminalInput = $('#terminalInput');
 const terminalTriggers = $$('.terminal-trigger');
 const terminalClosers = $$('[data-terminal-close]');
 const terminalDragHandle = $('[data-terminal-drag]');
+const terminalDockButton = $('[data-terminal-dock]');
 
 if (terminalShell && terminalWindow && terminalBody && terminalOutput && terminalForm && terminalInput) {
   const commandNames = [
@@ -303,6 +304,27 @@ if (terminalShell && terminalWindow && terminalBody && terminalOutput && termina
     if (previousFocus && previousFocus.focus) previousFocus.focus({ preventScroll: true });
   }
 
+  function setTerminalDocked(docked) {
+    const desktop = window.matchMedia('(min-width: 761px)').matches;
+    const enabled = Boolean(docked && desktop);
+    terminalShell.classList.toggle('is-docked', enabled);
+    terminalDockButton?.setAttribute('aria-pressed', String(enabled));
+    terminalDockButton?.setAttribute('title', enabled ? 'Frigør terminal' : 'Dock terminal');
+    terminalDockButton?.setAttribute('aria-label', enabled ? 'Frigør terminal fra venstre side' : 'Fastgør terminal i venstre side');
+    resetTerminalPosition();
+  }
+
+  terminalDockButton?.addEventListener('click', () => {
+    setTerminalDocked(!terminalShell.classList.contains('is-docked'));
+    terminalInput.focus({ preventScroll: true });
+  });
+
+  window.addEventListener('resize', () => {
+    if (window.matchMedia('(max-width: 760px)').matches && terminalShell.classList.contains('is-docked')) {
+      setTerminalDocked(false);
+    }
+  });
+
   terminalTriggers.forEach(trigger => trigger.addEventListener('click', openTerminal));
   terminalClosers.forEach(el => el.addEventListener('click', closeTerminal));
 
@@ -321,7 +343,7 @@ if (terminalShell && terminalWindow && terminalBody && terminalOutput && termina
   function clearOrbEffects() {
     clearTimeout(orbEffectTimer);
     document.body.classList.remove('orb-party', 'orb-panic', 'orb-sleep', 'orb-hide', 'orb-big-eyes');
-    $$('.orb, .peek-orb').forEach(el => el.classList.remove('orb-blink', 'orb-spin'));
+    $$('.orb, .peek-orb, .terminal-orb').forEach(el => el.classList.remove('orb-blink', 'orb-spin'));
   }
 
   function temporaryBodyEffect(className, duration = 2400) {
@@ -331,7 +353,7 @@ if (terminalShell && terminalWindow && terminalBody && terminalOutput && termina
   }
 
   function blinkOrbs() {
-    $$('.orb, .peek-orb').forEach(el => {
+    $$('.orb, .peek-orb, .terminal-orb').forEach(el => {
       el.classList.remove('orb-blink');
       void el.offsetWidth;
       el.classList.add('orb-blink');
@@ -340,7 +362,7 @@ if (terminalShell && terminalWindow && terminalBody && terminalOutput && termina
   }
 
   function spinOrbs() {
-    $$('.orb, .peek-orb').forEach(el => {
+    $$('.orb, .peek-orb, .terminal-orb').forEach(el => {
       el.classList.remove('orb-spin');
       void el.offsetWidth;
       el.classList.add('orb-spin');
@@ -381,6 +403,7 @@ if (terminalShell && terminalWindow && terminalBody && terminalOutput && termina
       line('  secret      → ???', 'yellow');
       line('  clear       → clear terminal', 'yellow');
       line('  home        → back to the top', 'yellow');
+      line('  tip: use the ◧ button to dock the terminal on desktop', 'dim');
     },
     about: async () => {
       line('Emma Langberg', 'accent');
@@ -429,8 +452,10 @@ if (terminalShell && terminalWindow && terminalBody && terminalOutput && termina
     orb: orbSequence,
     blink: async () => { blinkOrbs(); line('* blink *', 'accent'); },
     dance: async () => {
-      temporaryBodyEffect('orb-party', 3800);
-      line('♪ initiating highly questionable dance moves...', 'accent');
+      temporaryBodyEffect('orb-party', 4300);
+      line('♪ calibrating tiny legs that do not exist...', 'dim');
+      await sleepMs(280);
+      line('♪ initiating suspiciously committed hopping...', 'accent');
     },
     sleep: async () => {
       clearOrbEffects();
@@ -554,7 +579,7 @@ if (terminalShell && terminalWindow && terminalBody && terminalOutput && termina
   }
 
   terminalDragHandle?.addEventListener('pointerdown', (e) => {
-    if (window.matchMedia('(max-width: 760px)').matches) return;
+    if (window.matchMedia('(max-width: 760px)').matches || terminalShell.classList.contains('is-docked')) return;
     if (e.target.closest('button')) return;
     const rect = terminalWindow.getBoundingClientRect();
     dragState = {

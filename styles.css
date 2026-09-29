@@ -105,6 +105,8 @@ button { color: inherit; font: inherit; }
   top:41%;
   overflow:hidden;
   box-shadow:0 0 18px rgba(255,245,225,.08);
+  transition: transform .28s cubic-bezier(.22,1,.36,1), background .28s ease, box-shadow .28s ease;
+  transform-origin:center center;
 }
 .eye.left { left:30.5%; }
 .eye.right { right:30.5%; }
@@ -116,7 +118,7 @@ button { color: inherit; font: inherit; }
   position:absolute;
   left:26px;
   top:26px;
-  transition:transform .07s cubic-bezier(.2,.8,.2,1);
+  transition:transform .07s cubic-bezier(.2,.8,.2,1), opacity .2s ease;
   will-change:transform;
 }
 .pupil::after {
@@ -301,7 +303,8 @@ button { color: inherit; font: inherit; }
   height:var(--peek-size);
   bottom:51%;
   left:50%;
-  transform:translateX(-50%);
+  margin-left:calc(var(--peek-size) / -2);
+  transform:none;
   z-index:auto;
 }
 .peek-orb::before {
@@ -634,6 +637,122 @@ footer { max-width:var(--max); margin:0 auto; padding:24px 28px 36px; border-top
   letter-spacing: .03em;
 }
 
+
+/* Terminal orb monitor + optional desktop docking ------------------------ */
+.terminal-actions {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.terminal-dock,
+.terminal-close {
+  display: grid;
+  place-items: center;
+}
+.terminal-dock {
+  width: 30px;
+  height: 30px;
+  border: 0;
+  background: transparent;
+  color: rgba(232,255,239,.48);
+  font-size: 17px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: color .2s ease, background .2s ease, transform .2s ease;
+}
+.terminal-dock:hover,
+.terminal-dock[aria-pressed="true"] {
+  color: var(--term-green);
+  background: rgba(156,255,195,.06);
+}
+.terminal-dock[aria-pressed="true"] { transform: rotate(-90deg); }
+
+.terminal-orb-monitor {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  float: right;
+  width: 154px;
+  height: 122px;
+  margin: -6px -4px 14px 22px;
+  border: 1px solid rgba(156,255,195,.11);
+  border-radius: 12px;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(156,255,195,.05), transparent 58%),
+    rgba(3,8,5,.72);
+  box-shadow: 0 12px 30px rgba(0,0,0,.22), inset 0 0 24px rgba(156,255,195,.025);
+  overflow: hidden;
+  pointer-events: none;
+}
+.terminal-orb-label {
+  position: absolute;
+  left: 10px;
+  top: 8px;
+  color: rgba(199,249,217,.34);
+  font: 500 8px/1 ui-monospace, monospace;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.terminal-orb {
+  position: absolute;
+  width: 92px;
+  height: 92px;
+  left: 50%;
+  bottom: -22px;
+  margin-left: -46px;
+  transform: none;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 28%, #292620, #080808 64%, #000 100%);
+  border: 1px solid rgba(255,248,230,.5);
+  box-shadow: 0 0 24px rgba(156,255,195,.04), inset 6px 5px 18px rgba(255,255,255,.02);
+  transition: transform .45s cubic-bezier(.22,1,.36,1), opacity .35s ease, filter .35s ease;
+}
+.terminal-orb .eye {
+  width: 28px;
+  height: 28px;
+  top: 31%;
+  box-shadow: 0 0 10px rgba(255,245,225,.07);
+}
+.terminal-orb .eye.left { left: 18%; }
+.terminal-orb .eye.right { right: 18%; }
+.terminal-orb .pupil {
+  width: 9px;
+  height: 9px;
+  left: 9.5px;
+  top: 9.5px;
+}
+.terminal-orb .pupil::after {
+  width: 3px;
+  height: 3px;
+  top: 1px;
+  right: 1px;
+}
+
+/* Docking is deliberately desktop-only. It removes the backdrop and keeps
+   the page visible so orb commands can be watched in context. */
+@media (min-width: 761px) {
+  .terminal-shell.is-docked {
+    place-items: start;
+    padding: 16px;
+  }
+  .terminal-shell.is-docked .terminal-backdrop {
+    opacity: 0;
+    pointer-events: none;
+    backdrop-filter: none;
+  }
+  .terminal-shell.is-docked .terminal-window {
+    width: min(520px, 42vw);
+    height: calc(100dvh - 32px);
+    max-height: none;
+    margin: 0;
+    transform: none;
+    position: relative;
+    left: auto !important;
+    top: auto !important;
+  }
+}
+
 /* Orb command effects ----------------------------------------------------- */
 .orb,
 .peek-orb {
@@ -644,22 +763,31 @@ footer { max-width:var(--max); margin:0 auto; padding:24px 28px 36px; border-top
     border-color .4s ease;
 }
 body.orb-party .orb,
-body.orb-party .peek-orb {
+body.orb-party .peek-orb,
+body.orb-party .terminal-orb {
   animation: orbParty .52s cubic-bezier(.2,.8,.2,1) infinite alternate;
   filter: drop-shadow(0 0 18px rgba(156,255,195,.18));
 }
 body.orb-panic .orb,
-body.orb-panic .peek-orb {
+body.orb-panic .peek-orb,
+body.orb-panic .terminal-orb {
   animation: orbPanic .10s linear infinite;
 }
-body.orb-sleep .pupil {
-  transform: translate(0, 10px) scaleY(.18) !important;
-}
 body.orb-sleep .eye {
-  transform: scaleY(.72);
+  transform: scaleY(.06);
+  transform-origin: center center;
+  box-shadow: none;
+}
+body.orb-sleep .pupil {
+  opacity: 0;
+  transform: none !important;
+}
+body.orb-sleep .pupil::after {
+  opacity: 0;
 }
 body.orb-hide .orb,
-body.orb-hide .peek-orb {
+body.orb-hide .peek-orb,
+body.orb-hide .terminal-orb {
   opacity: .06;
   transform: translateY(90px) scale(.88);
 }
@@ -670,7 +798,8 @@ body.orb-big-eyes .pupil {
   transform: scale(.75) !important;
 }
 .orb-blink .eye,
-.peek-orb.orb-blink .eye {
+.peek-orb.orb-blink .eye,
+.terminal-orb.orb-blink .eye {
   animation: orbBlink .34s ease;
 }
 .orb-spin {
@@ -707,6 +836,16 @@ body.orb-big-eyes .pupil {
 
 @media (max-width: 760px) {
   .terminal-shell { place-items: stretch; }
+  .terminal-dock { display:none; }
+  .terminal-orb-monitor {
+    float:none;
+    position:relative;
+    top:auto;
+    width:100%;
+    height:116px;
+    margin:0 0 20px;
+  }
+  .terminal-orb { width:96px; height:96px; bottom:-24px; margin-left:-48px; }
   .terminal-backdrop { background: rgba(0,0,0,.72); }
   .terminal-window {
     width: 100vw;
@@ -729,10 +868,274 @@ body.orb-big-eyes .pupil {
   .terminal-window,
   .terminal-shell,
   .orb,
-  .peek-orb { transition: none; }
+  .peek-orb,
+  .terminal-orb { transition: none; }
   .terminal-caret,
   body.orb-party .orb,
   body.orb-party .peek-orb,
+  body.orb-party .terminal-orb,
   body.orb-panic .orb,
-  body.orb-panic .peek-orb { animation: none; }
+  body.orb-panic .peek-orb,
+  body.orb-panic .terminal-orb { animation: none; }
+}
+
+/* -----------------------------------------------------------------------
+   V3 polish: cleaner hero, better contact peek + orb monitor + jump dance
+   ----------------------------------------------------------------------- */
+
+/* The old full-section glow could show as a hard vertical compositing strip
+   in some Chromium/GPU combinations. The orb already has its own local glow,
+   so keep the hero cleaner and let that do the work. */
+.hero::after { display:none; }
+.orb-glow {
+  inset:-9%;
+  background:radial-gradient(circle at 38% 36%,rgba(255,248,230,.14),transparent 61%);
+  filter:blur(14px);
+  opacity:.9;
+}
+
+/* Contact character: the orb should actually peek from behind the horizon,
+   rather than sit almost entirely above it. */
+.contact-character {
+  right:-1vw;
+  bottom:-1vw;
+  width:49vw;
+  height:32vw;
+  max-width:720px;
+  max-height:470px;
+  --peek-size:184px;
+}
+.horizon {
+  left:2%;
+  right:-2%;
+  bottom:-16%;
+  height:62%;
+  border-radius:50% 50% 0 0;
+  background:radial-gradient(circle at 50% 0,#151413,#070707 54%,#020202 100%);
+  border-top-color:rgba(255,247,224,.62);
+  box-shadow:0 -4px 18px rgba(255,245,222,.045);
+}
+.peek-orb {
+  bottom:24%;
+}
+.peek-orb .eye {
+  top:29%;
+}
+.rays {
+  bottom:69%;
+}
+.rays span {
+  width:36px;
+  opacity:.64;
+}
+.rays span:nth-child(1){transform:rotate(-150deg) translateX(86px)}
+.rays span:nth-child(2){transform:rotate(-112deg) translateX(96px)}
+.rays span:nth-child(3){transform:rotate(-68deg) translateX(96px)}
+.rays span:nth-child(4){transform:rotate(-30deg) translateX(86px)}
+
+/* Let the monitor show more than just the orb's forehead. */
+.terminal-orb-monitor {
+  width:166px;
+  height:142px;
+}
+.terminal-orb {
+  width:98px;
+  height:98px;
+  bottom:-4px;
+  margin-left:-49px;
+}
+
+/* A more physical little hop: anticipation -> takeoff -> airtime -> squash -> settle. */
+body.orb-party .orb,
+body.orb-party .peek-orb,
+body.orb-party .terminal-orb {
+  animation:orbHop 1.08s cubic-bezier(.22,.72,.24,1) infinite;
+  filter:none;
+  transform-origin:50% 100%;
+}
+@keyframes orbHop {
+  0%,100% { transform:translateY(0) rotate(0deg) scale(1,1); }
+  10% { transform:translateY(3px) rotate(-1deg) scale(1.05,.94); }
+  28% { transform:translateY(-28px) rotate(2deg) scale(.97,1.04); }
+  42% { transform:translateY(-38px) rotate(-2deg) scale(.98,1.03); }
+  55% { transform:translateY(-19px) rotate(1deg) scale(1,1); }
+  67% { transform:translateY(2px) rotate(0deg) scale(1.08,.91); }
+  76% { transform:translateY(-8px) rotate(-1deg) scale(.99,1.02); }
+  88% { transform:translateY(0) rotate(1deg) scale(1.02,.98); }
+}
+
+/* Mobile: keep the contact illustration compact and show more of the monitor. */
+@media (max-width:760px) {
+  .contact-character {
+    width:108vw;
+    height:72vw;
+    right:-35vw;
+    bottom:-4vw;
+    --peek-size:148px;
+  }
+  .horizon {
+    bottom:-18%;
+    height:61%;
+  }
+  .peek-orb { bottom:23%; }
+  .peek-orb .eye { top:28%; }
+  .rays { bottom:69%; }
+
+  .terminal-orb-monitor {
+    width:100%;
+    height:178px;
+    margin:0 0 20px;
+    float:none;
+  }
+  .terminal-orb {
+    width:118px;
+    height:118px;
+    bottom:-5px;
+    margin-left:-59px;
+  }
+  .terminal-orb .eye {
+    width:34px;
+    height:34px;
+    top:30%;
+  }
+  .terminal-orb .eye.left { left:19%; }
+  .terminal-orb .eye.right { right:19%; }
+  .terminal-orb .pupil {
+    width:11px;
+    height:11px;
+    left:11.5px;
+    top:11.5px;
+  }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  body.orb-party .orb,
+  body.orb-party .peek-orb,
+  body.orb-party .terminal-orb { animation:none; }
+}
+
+/* --------------------------------------------------------------------------
+   v4 polish - desktop contact placement + larger hero eyes
+   -------------------------------------------------------------------------- */
+
+/* On desktop the contact illustration belongs to the RIGHT grid column.
+   Keeping it in normal grid flow prevents it from drifting over the copy. */
+@media (min-width: 981px) {
+  .contact {
+    grid-template-columns: minmax(0, 1.08fr) minmax(520px, .92fr);
+    column-gap: 2vw;
+  }
+
+  .contact-character {
+    position: relative;
+    right: auto;
+    bottom: auto;
+    width: min(50vw, 760px);
+    height: min(34vw, 500px);
+    max-width: none;
+    max-height: none;
+    justify-self: end;
+    align-self: end;
+    margin-right: -3vw;
+    margin-bottom: -2.5vw;
+    --peek-size: 190px;
+  }
+
+  .horizon {
+    left: 0;
+    right: -2%;
+  }
+
+  .peek-orb {
+    left: 51%;
+    bottom: 25%;
+  }
+
+  .rays {
+    left: 51%;
+    bottom: 70%;
+  }
+}
+
+/* Give the main character the same expressive eye-to-face ratio as the
+   terminal monitor, without turning the eyes into giant headlights. */
+@media (min-width: 641px) {
+  .orb > .eye {
+    width: 96px;
+    height: 96px;
+    top: 39.5%;
+  }
+
+  .orb > .eye.left { left: 27.5%; }
+  .orb > .eye.right { right: 27.5%; }
+
+  .orb > .eye .pupil {
+    width: 28px;
+    height: 28px;
+    left: 34px;
+    top: 34px;
+  }
+
+  .orb > .eye .pupil::after {
+    width: 8px;
+    height: 8px;
+    top: 4px;
+    right: 4px;
+  }
+}
+
+/* Slightly larger on phones too, but keep enough room for eye movement. */
+@media (max-width: 640px) {
+  .orb > .eye {
+    width: 62px;
+    height: 62px;
+    top: 40%;
+  }
+
+  .orb > .eye.left { left: 27%; }
+  .orb > .eye.right { right: 27%; }
+
+  .orb > .eye .pupil {
+    width: 19px;
+    height: 19px;
+    left: 21.5px;
+    top: 21.5px;
+  }
+
+  .orb > .eye .pupil::after {
+    width: 5px;
+    height: 5px;
+    top: 2.5px;
+    right: 2.5px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   v5 contact orb alignment
+   Keep the contact layout in two columns, but move the WHOLE peek orb above
+   the horizon again. The eyes no longer need to visually "escape" the hill.
+   -------------------------------------------------------------------------- */
+@media (min-width: 981px) {
+  .contact-character {
+    --peek-size: 190px;
+  }
+
+  /* The horizon begins at roughly 54% of the illustration height.
+     46% bottom positions the 190px orb so its base meets that horizon. */
+  .peek-orb {
+    left: 51%;
+    bottom: 46%;
+    z-index: 3;
+  }
+
+  /* Return the eyes to their natural position inside the orb. */
+  .peek-orb .eye {
+    top: 34%;
+  }
+
+  /* Keep the little attention rays visually attached to the raised orb. */
+  .rays {
+    left: 51%;
+    bottom: 82%;
+  }
 }
